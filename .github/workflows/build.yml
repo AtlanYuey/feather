@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - 'claude/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: 'true'
+
+      - name: Prepare dependencies (Xcode)
+        run: |
+          sudo xcode-select -s /Applications/Xcode_26.3.0.app
+
+      - name: Build
+        run: |
+          agvtool new-version -all $(git rev-parse HEAD)
+          make
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Feather-${{ github.sha }}
+          path: packages/*
+          if-no-files-found: error
