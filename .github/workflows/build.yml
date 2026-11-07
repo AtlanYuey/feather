@@ -19,10 +19,24 @@ jobs:
         run: |
           sudo xcode-select -s /Applications/Xcode_26.3.0.app
 
-      - name: Build
+      - name: Resolve Swift packages
+        run: |
+          for i in 1 2 3; do
+            xcodebuild -resolvePackageDependencies -project Feather.xcodeproj -scheme Feather \
+              -derivedDataPath "$TMPDIR/Feather/iphoneos" -skipPackagePluginValidation && break
+            echo "Package resolution failed (attempt $i), retrying..."
+            sleep 5
+          done
+
+      - name: Build (iOS)
         run: |
           agvtool new-version -all $(git rev-parse HEAD)
-          make
+          for i in 1 2 3; do
+            make iphoneos && exit 0
+            echo "Build failed (attempt $i), retrying..."
+            sleep 5
+          done
+          exit 1
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
