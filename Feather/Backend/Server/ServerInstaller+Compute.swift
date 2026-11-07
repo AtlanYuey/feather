@@ -39,7 +39,13 @@ extension ServerInstaller {
 	}
 	
 	var externalServerLink: String {
-		let baseUrl = "https://api.palera.in/genPlist?bundleid=\(app.identifier!)&name=\(app.name!)&version=\(app.version!)&fetchurl=\(self.payloadEndpoint.absoluteString)"
+		let baseUrl = ManifestServerStore.rawLink(
+			base: ManifestServerStore.selected.url,
+			bundleId: app.identifier!,
+			name: app.name!,
+			version: app.version!,
+			fetchUrl: self.payloadEndpoint.absoluteString
+		)
 		let encodedBaseUrl = baseUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
 		let finalEncodedUrl = encodedBaseUrl.addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
 		

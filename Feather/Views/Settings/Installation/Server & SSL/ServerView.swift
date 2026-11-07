@@ -51,6 +51,15 @@ struct ServerView: View {
 	@AppStorage("Feather.ipFix") private var _ipFix: Bool = false
 	@AppStorage("Feather.serverMethod") private var _serverMethod: Int = 0
 	private let _serverMethods: [String] = [.localized("Fully Local"), .localized("Semi Local")]
+	// observed so the displayed name refreshes when returning from ManifestServersView
+	@AppStorage(ManifestServerStore.selectedKey) private var _selectedManifestServerId: String = ManifestServerStore.paleraIn.id
+	@AppStorage(ManifestServerStore.serversKey) private var _manifestServersData: Data = Data()
+
+	private var _selectedManifestServerName: String {
+		_ = _selectedManifestServerId
+		_ = _manifestServersData
+		return ManifestServerStore.selected.name
+	}
 	
 	private let _dataService = NBFetchService()
 	private let _serverPackUrl = "https://backloop.dev/pack.json"
@@ -66,6 +75,16 @@ struct ServerView: View {
 				}
 				Toggle(.localized("Only use localhost address"), systemImage: "lifepreserver", isOn: $_ipFix)
 					.disabled(_serverMethod != 1)
+				NavigationLink(destination: ManifestServersView()) {
+					HStack {
+						Label(.localized("Manifest Server"), systemImage: "externaldrive.connected.to.line.below")
+						Spacer()
+						Text(_selectedManifestServerName)
+							.foregroundStyle(.secondary)
+							.lineLimit(1)
+					}
+				}
+				.disabled(_serverMethod != 1)
 			}
 			
 			Section {
